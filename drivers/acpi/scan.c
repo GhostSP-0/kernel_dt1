@@ -329,7 +329,7 @@ static int acpi_scan_device_check(struct acpi_device *adev)
 			dev_warn(&adev->dev, "Namespace scan failure\n");
 			return error;
 		}
-		if (!adev->handler) {
+   if (!adev->handler) {
 			dev_warn(&adev->dev, "Enumeration failure\n");
 			error = -ENODEV;
 		}
