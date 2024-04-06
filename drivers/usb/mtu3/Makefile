@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 
+EXTRA_CFLAGS += -Wno-enum-compare
+
 ccflags-y := -I$(srctree)/drivers/usb/gadget/
 ccflags-y += -I$(srctree)/drivers/usb/gadget/function
 
