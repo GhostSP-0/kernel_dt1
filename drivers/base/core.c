@@ -48,7 +48,13 @@ early_param("sysfs.deprecated", sysfs_deprecated_setup);
 /* Device links support. */
 static LIST_HEAD(deferred_sync);
 static unsigned int defer_sync_state_count = 1;
+<<<<<<< HEAD
 static DEFINE_MUTEX(fwnode_link_lock);
+=======
+static unsigned int defer_fw_devlink_count;
+static LIST_HEAD(deferred_fw_devlink);
+static DEFINE_MUTEX(defer_fw_devlink_lock);
+>>>>>>> a4a89f75a06a086c5f726706060e8e94dfdd8cb6
 static struct workqueue_struct *device_link_wq;
 static bool fw_devlink_is_permissive(void);
 
@@ -74,7 +80,7 @@ int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
 	struct fwnode_link *link;
 	int ret = 0;
 
-	mutex_lock(&fwnode_link_lock);
+	mutex_lock(&defer_fw_devlink_lock);
 
 	list_for_each_entry(link, &sup->consumers, s_hook)
 		if (link->consumer == con)
@@ -94,7 +100,7 @@ int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
 	list_add(&link->s_hook, &sup->consumers);
 	list_add(&link->c_hook, &con->suppliers);
 out:
-	mutex_unlock(&fwnode_link_lock);
+	mutex_unlock(&defer_fw_devlink_lock);
 
 	return ret;
 }
@@ -109,13 +115,13 @@ static void fwnode_links_purge_suppliers(struct fwnode_handle *fwnode)
 {
 	struct fwnode_link *link, *tmp;
 
-	mutex_lock(&fwnode_link_lock);
+	mutex_lock(&defer_fw_devlink_lock);
 	list_for_each_entry_safe(link, tmp, &fwnode->suppliers, c_hook) {
 		list_del(&link->s_hook);
 		list_del(&link->c_hook);
 		kfree(link);
 	}
-	mutex_unlock(&fwnode_link_lock);
+	mutex_unlock(&defer_fw_devlink_lock);
 }
 
 /**
@@ -128,13 +134,13 @@ static void fwnode_links_purge_consumers(struct fwnode_handle *fwnode)
 {
 	struct fwnode_link *link, *tmp;
 
-	mutex_lock(&fwnode_link_lock);
+	mutex_lock(&defer_fw_devlink_lock);
 	list_for_each_entry_safe(link, tmp, &fwnode->consumers, s_hook) {
 		list_del(&link->s_hook);
 		list_del(&link->c_hook);
 		kfree(link);
 	}
-	mutex_unlock(&fwnode_link_lock);
+	mutex_unlock(&defer_fw_devlink_lock);
 }
 
 /**
@@ -988,17 +994,17 @@ int device_links_check_suppliers(struct device *dev)
 	 * Device waiting for supplier to become available is not allowed to
 	 * probe.
 	 */
-	mutex_lock(&fwnode_link_lock);
+	mutex_lock(&defer_fw_devlink_lock);
 	if (dev->fwnode && !list_empty(&dev->fwnode->suppliers) &&
 	    !fw_devlink_is_permissive()) {
 		dev_dbg(dev, "probe deferral - wait for supplier %pfwP\n",
 			list_first_entry(&dev->fwnode->suppliers,
 			struct fwnode_link,
 			c_hook)->supplier);
-		mutex_unlock(&fwnode_link_lock);
+		mutex_unlock(&defer_fw_devlink_lock);
 		return -EPROBE_DEFER;
 	}
-	mutex_unlock(&fwnode_link_lock);
+	mutex_unlock(&defer_fw_devlink_lock);
 
 	device_links_write_lock();
 
@@ -1896,10 +1902,10 @@ static void fw_devlink_link_device(struct device *dev)
 
 	fw_devlink_parse_fwtree(fwnode);
 
-	mutex_lock(&fwnode_link_lock);
+	mutex_lock(&defer_fw_devlink_lock);
 	__fw_devlink_link_to_consumers(dev);
 	__fw_devlink_link_to_suppliers(dev, fwnode);
-	mutex_unlock(&fwnode_link_lock);
+	mutex_unlock(&defer_fw_devlink_lock);
 }
 
 /* Device links support end. */
