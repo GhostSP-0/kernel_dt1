@@ -48,13 +48,9 @@ early_param("sysfs.deprecated", sysfs_deprecated_setup);
 /* Device links support. */
 static LIST_HEAD(deferred_sync);
 static unsigned int defer_sync_state_count = 1;
-<<<<<<< HEAD
-static DEFINE_MUTEX(fwnode_link_lock);
-=======
 static unsigned int defer_fw_devlink_count;
 static LIST_HEAD(deferred_fw_devlink);
 static DEFINE_MUTEX(defer_fw_devlink_lock);
->>>>>>> a4a89f75a06a086c5f726706060e8e94dfdd8cb6
 static struct workqueue_struct *device_link_wq;
 static bool fw_devlink_is_permissive(void);
 
