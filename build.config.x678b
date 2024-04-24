@@ -31,7 +31,7 @@ DO_NOT_STRIP_MODULES=0
 MAKE_GOALS="${MAKE_GOALS} Image.gz dtbs"
 
 ABI_OUT_TAG="mtk"
-KMI_SYMBOL_LIST=android/abi_gki_aarch64_mtk
+KMI_SYMBOL_LIST=android/abi_gki_aarch64_transsion
 GKI_MODULES_LIST=android/gki_aarch64_modules
 ABI_DEFINITION=android/abi_gki_aarch64.xml
 
